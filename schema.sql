@@ -7,7 +7,9 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     role VARCHAR(50) NOT NULL CHECK (role IN ('disabled', 'donor')),
     is_verified BOOLEAN DEFAULT 0 NOT NULL,
-    disability_summary TEXT
+    disability_summary TEXT,
+    disability_percentage INTEGER,
+    disability_group VARCHAR(100)
 );
 
 -- Listings (İlanlar/İhtiyaçlar) Tablosu

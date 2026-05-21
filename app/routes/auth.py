@@ -1,16 +1,9 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, request
 from app.models.user import User
 from app import db
-from app.utils.pdf_verifier import extract_and_verify_report
+from app.services.pdf_verifier import extract_and_verify_report
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
-
-# --- WEB ARAYÜZÜ (HTML) ROTALARI ---
-
-@auth_bp.route('/view')
-def auth_view():
-    """Giriş Yap / Kayıt Ol arayüzünü (auth.html) döndürür."""
-    return render_template('auth.html')
 
 # --- API (JSON) UÇ NOKTALARI ---
 

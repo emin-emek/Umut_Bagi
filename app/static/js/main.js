@@ -155,7 +155,7 @@ function setupAuthForms() {
             const email = document.getElementById("login-email").value;
 
             try {
-                const response = await fetch("/auth/login", {
+                const response = await fetch("/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email })
@@ -194,7 +194,7 @@ function setupAuthForms() {
             }
 
             try {
-                const response = await fetch("/auth/register", {
+                const response = await fetch("/api/auth/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -487,7 +487,7 @@ function setupVerificationForm() {
             showToast("Belge okunuyor ve doğrulama sorgusu yapılıyor, lütfen bekleyin...", "warning");
 
             try {
-                const response = await fetch("/auth/verify-report", {
+                const response = await fetch("/api/auth/verify-report", {
                     method: "POST",
                     body: formData
                 });

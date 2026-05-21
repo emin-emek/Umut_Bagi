@@ -1,30 +1,13 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, request
 from app.models.user import User
 from app.models.listing import Listing
 from app import db
 
-main_bp = Blueprint('main', __name__)
-
-# --- WEB ARAYÜZÜ (HTML) ROTALARI ---
-
-@main_bp.route('/')
-def index():
-    """Ana sayfa / Dashboard arayüzünü döndürür."""
-    return render_template('index.html')
-
-@main_bp.route('/listings-view')
-def listings_view():
-    """İlan listeleme ve ilan açma arayüzünü döndürür."""
-    return render_template('listings.html')
+listings_bp = Blueprint('listings', __name__, url_prefix='/listings')
 
 # --- API (JSON) UÇ NOKTALARI ---
 
-@main_bp.route('/api/health')
-def health():
-    """Uygulama sağlık kontrolü API'si."""
-    return jsonify({"status": "healthy"}), 200
-
-@main_bp.route('/api/listings', methods=['GET'])
+@listings_bp.route('', methods=['GET'])
 def get_listings():
     """Tüm ilanları JSON formatında listeler (Oluşturan kullanıcının onay bilgilerini içerir)."""
     listings = Listing.query.all()
@@ -39,9 +22,9 @@ def get_listings():
         result.append(ldict)
     return jsonify(result), 200
 
-@main_bp.route('/api/listings', methods=['POST'])
+@listings_bp.route('', methods=['POST'])
 def create_listing():
-    """Yeni bir ilan oluşturur (Yalnızca 'disabled' rolündeki kullanıcılar)."""
+    """Yeni bir ilan oluşturur (Yalnızca 'disabled' rolündeki doğrulanmış kullanıcılar)."""
     data = request.get_json() or {}
     
     title = data.get('title')
@@ -58,6 +41,9 @@ def create_listing():
         
     if user.role != 'disabled':
         return jsonify({"error": "Sadece engelli rolüne sahip kullanıcılar ilan oluşturabilir."}), 403
+        
+    if not user.is_verified:
+        return jsonify({"error": "İlan açabilmek için öncelikle e-Devlet üzerinden raporunuzu doğrulatmalısınız."}), 403
         
     try:
         new_listing = Listing(
@@ -78,7 +64,7 @@ def create_listing():
         db.session.rollback()
         return jsonify({"error": f"Bir hata oluştu: {str(e)}"}), 500
 
-@main_bp.route('/api/listings/<int:listing_id>/match', methods=['POST'])
+@listings_bp.route('/<int:listing_id>/match', methods=['POST'])
 def match_listing(listing_id):
     """Bir ilanı bir donör ile eşleştirir (Yalnızca 'donor' rolündeki kullanıcılar)."""
     data = request.get_json() or {}

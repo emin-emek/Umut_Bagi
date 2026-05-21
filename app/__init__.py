@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 # Çevre değişkenlerini yükle
@@ -30,15 +31,18 @@ def create_app(test_config=None):
         
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
+    # Güvenlik Protokolü: CORS Yapılandırması (Kılavuz Bölüm 4.1)
+    CORS(app, resources={r"/api/*": {"origins": os.environ.get("ALLOWED_ORIGINS", "*")}})
+    
     # SQLAlchemy nesnesini uygulamaya bağla
     db.init_app(app)
     
     # Dairesel bağımlılıkları önlemek için blueprint'leri fonksiyon içinde içe aktar
-    from app.routes.auth import auth_bp
-    from app.routes.main import main_bp
+    from app.routes import api_bp
+    from app.routes.pages import pages_bp
     
     # Blueprint'leri uygulamaya kaydet
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(main_bp)
+    app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(pages_bp)
     
     return app

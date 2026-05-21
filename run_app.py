@@ -17,8 +17,10 @@ with app.app_context():
             name="Ahmet Yılmaz",
             email="ahmet@example.com",
             role="disabled",
-            disability_summary="Görme engelli, ekran okuyucu ses desteği arıyor.",
-            is_verified=True
+            disability_summary="%70 Görme Engeli",
+            is_verified=True,
+            disability_percentage=70,
+            disability_group="Görme Engeli"
         )
         u2 = User(
             name="Zeynep Kaya",
