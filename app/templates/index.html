@@ -14,31 +14,12 @@
         </div>
     </div>
     
-    <div class="hero-visual">
-        <div class="hero-shape"></div>
-        <div class="hero-card">
-            <div class="visual-item">
-                <div class="visual-icon"><i class="fa-solid fa-wheelchair"></i></div>
-                <div class="visual-info">
-                    <h4>İhtiyacını Bildir</h4>
-                    <p>Eğitim, teknoloji veya erişim ihtiyaçlarını hızlıca sisteme gir.</p>
-                </div>
-            </div>
-            <div class="visual-item">
-                <div class="visual-icon"><i class="fa-solid fa-shield-heart"></i></div>
-                <div class="visual-info">
-                    <h4>Eşleşme ve Destek</h4>
-                    <p>Gönüllü donörlerimiz ihtiyacını üstlensin, dayanışma başlasın.</p>
-                </div>
-            </div>
-            <div class="visual-item">
-                <div class="visual-icon"><i class="fa-solid fa-award"></i></div>
-                <div class="visual-info">
-                    <h4>Umutları Yeşert</h4>
-                    <p>Tamamlanan her destekle engelsiz bir dünyaya bir adım daha yaklaş.</p>
-                </div>
-            </div>
-        </div>
+    <div class="hero-visual" style="display: flex; align-items: center; justify-content: center; position: relative;">
+        <!-- Arka plan parlaması -->
+        <div style="position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, var(--primary) 0%, transparent 70%); opacity: 0.15; filter: blur(40px); z-index: 0;"></div>
+        
+        <!-- Hero Resmi -->
+        <img src="{{ url_for('static', filename='img/hero.jpeg') }}" alt="Engelsiz Dayanışma" style="width: 100%; max-width: 550px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 8px solid rgba(255,255,255,0.8); z-index: 1; transform: translateY(-10px); transition: transform 0.4s ease;" onmouseover="this.style.transform='translateY(-15px) scale(1.02)'" onmouseout="this.style.transform='translateY(-10px) scale(1)'">
     </div>
 </section>
 

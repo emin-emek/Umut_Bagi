@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Eğer auth sayfasındaysak form kontrollerini kur
-    if (window.location.pathname === "/auth/view") {
+    if (window.location.pathname.includes("/auth/view") || window.location.pathname.includes("/auth")) {
+        console.log("Auth sayfasi algilandi, formlar kuruluyor...");
         setupAuthForms();
     }
 });
@@ -81,7 +82,7 @@ function updateAuthUI() {
             
             if (usernameEl) usernameEl.textContent = user.name;
             if (roleEl) {
-                roleEl.textContent = user.role === "disabled" ? "Engelli" : "Donör";
+                roleEl.textContent = user.role === "disabled" ? "Engelli" : "Bağışçı";
                 roleEl.className = `badge badge-${user.role}`;
                 
                 // Eski onay rozetini temizle ve varsa yeniden ekle
@@ -93,6 +94,15 @@ function updateAuthUI() {
                     verifiedBadge.className = "badge-verified";
                     verifiedBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Onaylı';
                     userInfoContainer.appendChild(verifiedBadge);
+                }
+            }
+            // Eğer kullanıcı bağışçıysa, "Diğer İlanlar" butonunun adını "Umut Bekleyenler" olarak değiştir.
+            const otherNeedsText = document.getElementById("other-needs-text");
+            if (otherNeedsText) {
+                if (user.role === "donor") {
+                    otherNeedsText.textContent = "Umut Bekleyenler";
+                } else {
+                    otherNeedsText.textContent = "Diğer İlanlar";
                 }
             }
         }
@@ -238,7 +248,11 @@ async function loadListings(silent = false) {
         }
         
         allListings = freshListings;
-        displayListings(allListings);
+        if (typeof applyFilters === "function") {
+            applyFilters();
+        } else {
+            displayListings(allListings);
+        }
     } catch (err) {
         if (!silent) {
             grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--danger);"><i class="fa-solid fa-triangle-exclamation fa-2xl"></i><p style="margin-top: 1rem;">İlanlar yüklenirken bir hata oluştu.</p></div>';
@@ -422,24 +436,78 @@ function displayListings(listings) {
     }).join("");
 }
 
-function filterListings(category) {
-    const buttons = document.querySelectorAll(".filter-btn");
+let currentMainFilter = 'all';
+
+function setMainFilter(filterType) {
+    currentMainFilter = filterType;
+    
+    // Update button styles
+    const buttons = document.querySelectorAll(".main-filter-btn");
     buttons.forEach(b => {
-        if (b.getAttribute("data-category") === category) {
-            b.classList.add("btn-primary");
-            b.classList.remove("btn-outline");
+        if (b.getAttribute("data-filter") === filterType) {
+            b.classList.add("ring-4", "shadow-md");
+            if(filterType === 'my-listings') b.classList.add("border-blue-500");
+            else if(filterType === 'other-needs') b.classList.add("border-orange-500");
+            else if(filterType === 'donations') b.classList.add("border-teal-500");
+            b.classList.remove("border-gray-200");
         } else {
-            b.classList.add("btn-outline");
-            b.classList.remove("btn-primary");
+            b.classList.remove("ring-4", "shadow-md", "border-blue-500", "border-orange-500", "border-teal-500");
+            b.classList.add("border-gray-200");
         }
     });
 
-    if (category === "all") {
-        displayListings(allListings);
-    } else {
-        const filtered = allListings.filter(l => l.category.toLowerCase() === category.toLowerCase());
-        displayListings(filtered);
+    applyFilters();
+}
+
+function applyFilters() {
+    let filtered = allListings;
+    const currentUser = getLoggedInUser();
+
+    if (currentMainFilter === 'my-listings') {
+        if (!currentUser) {
+            filtered = [];
+        } else {
+            filtered = allListings.filter(l => {
+                // Kullanıcının kendi oluşturduğu tüm ilanlar (Bağışçının bağışları, Engellinin ihtiyaçları)
+                if (l.created_by === currentUser.id) return true;
+                
+                // Bağışçı (donor), üstlendiği/karşıladığı "ihtiyaç" ilanlarını İlanlarım'da görebilsin
+                if (currentUser.role === 'donor' && l.matched_donor_id === currentUser.id) return true;
+                
+                // Engelli bireyler (disabled), talep ettikleri bağışları İlanlarım'da görmeyecek (Paylaşım Merkezi'nde görecekler)
+                return false;
+            });
+        }
+    } else if (currentMainFilter === 'other-needs') {
+        filtered = allListings.filter(l => l.listing_type === 'need');
+        if (currentUser) {
+            filtered = filtered.filter(l => l.created_by !== currentUser.id);
+        }
+    } else if (currentMainFilter === 'donations') {
+        filtered = allListings.filter(l => l.listing_type === 'donation');
+        if (currentUser) {
+            // Kullanıcı kendi açtığı bağış ilanlarını Paylaşım Merkezi'nde görmesin
+            filtered = filtered.filter(l => l.created_by !== currentUser.id);
+        }
     }
+
+    // Apply search filter if any
+    const searchInput = document.getElementById("search-input");
+    const query = searchInput ? searchInput.value.toLowerCase() : "";
+    if (query) {
+        filtered = filtered.filter(l => 
+            l.title.toLowerCase().includes(query) || 
+            (l.description && l.description.toLowerCase().includes(query)) || 
+            (l.category && l.category.toLowerCase().includes(query)) ||
+            (l.creator_name && l.creator_name.toLowerCase().includes(query))
+        );
+    }
+
+    displayListings(filtered);
+}
+
+function filterBySearch() {
+    applyFilters();
 }
 
 // İlan Eşleştirme (Destek Olma)
@@ -556,23 +624,23 @@ async function cancelMatch(listingId) {
 }
 
 async function deleteListing(listingId) {
-    if (!confirm(\'Bu ilanı tamamen kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.\')) return;
+    if (!confirm('Bu ilanı tamamen kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.')) return;
     const user = getLoggedInUser();
     try {
-        const response = await fetch(/api/listings/, {
-            method: \'DELETE\',
-            headers: { \'Content-Type\': \'application/json\' },
+        const response = await fetch(`/api/listings/${listingId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: user.id })
         });
         const data = await response.json();
         if (response.ok) {
-            showToast(data.message || \'İlan başarıyla kaldırıldı.\');
+            showToast(data.message || 'İlan başarıyla kaldırıldı.');
             loadListings();
         } else {
-            showToast(data.error || \'İlan silinemedi.\', \'danger\');
+            showToast(data.error || 'İlan silinemedi.', 'danger');
         }
     } catch (err) {
-        showToast(\'Sunucu ile bağlantı hatası.\', \'danger\');
+        showToast('Sunucu ile bağlantı hatası.', 'danger');
     }
 }
 
@@ -788,11 +856,11 @@ function setupListingForm() {
             const district = document.getElementById("need-district").value;
             const phone = document.getElementById("need-phone").value;
             const address = document.getElementById("need-address").value;
-            const category = document.getElementById("need-category").value;
+            const category = "Genel İhtiyaç";
             const description = document.getElementById("need-description").value;
             
             // İhtiyaç için otomatik title oluştur
-            const title = `${user.name} kullanıcısının ${category} İhtiyacı`;
+            const title = `${user.name} kullanıcısının İhtiyacı`;
             
             const formData = new FormData();
             formData.append("title", title);

@@ -4,7 +4,7 @@ Umut Bağı, engelli bireyler ile destek olmak isteyen donörleri bir araya geti
 
 ---
 
-## 🏛 Mimari Seçim ve Teknik Gerekçeler
+## Mimari Seçim ve Teknik Gerekçeler
 
 Projemizde **Seçenek 1: Monolitik Mimari (Tümleşik Yapı)** tercih edilmiş ve bu doğrultuda kurumsal standartlara uygun klasör yapısı kurulmuştur.
 
@@ -15,7 +15,7 @@ Projemizde **Seçenek 1: Monolitik Mimari (Tümleşik Yapı)** tercih edilmiş v
 
 ---
 
-## 🛠 Teknoloji Yığını (Tech Stack)
+## Teknoloji Yığını (Tech Stack)
 
 - **Frontend:** Vanilla HTML5, premium cam efekti barındıran modern Vanilla CSS, Vanilla JavaScript (XSS korumalı, harici kitaplık bağımlılığı minimum).
 - **Backend:** Python 3.9 (Flask Framework - Application Factory Pattern).
@@ -25,7 +25,7 @@ Projemizde **Seçenek 1: Monolitik Mimari (Tümleşik Yapı)** tercih edilmiş v
 
 ---
 
-## 🔒 Güvenlik ve KVKK / GDPR Uyumluluğu
+## Güvenlik ve KVKK / GDPR Uyumluluğu
 
 Sağlık Bakanlığı ve e-Devlet entegrasyonu simülasyonumuzda **KVKK kurallarına sıfır toleransla** uyulmaktadır:
 - Yüklenen engelli e-Rapor PDF'leri RAM üzerinde anlık okunur.
@@ -34,7 +34,7 @@ Sağlık Bakanlığı ve e-Devlet entegrasyonu simülasyonumuzda **KVKK kurallar
 
 ---
 
-## 📁 Proje Klasör Yapısı
+## Proje Klasör Yapısı
 
 ```text
 📁 umut_bagi/
@@ -68,7 +68,7 @@ Sağlık Bakanlığı ve e-Devlet entegrasyonu simülasyonumuzda **KVKK kurallar
 
 ---
 
-## 🚀 Kurulum ve Lokal Çalıştırma
+## Kurulum ve Lokal Çalıştırma
 
 ### 1. Bağımlılıkların Kurulması
 ```bash

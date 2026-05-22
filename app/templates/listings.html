@@ -45,21 +45,38 @@
         </div>
     </div>
 
-    <!-- Filtreleme ve Arama Çubuğu -->
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem; background-color: var(--bg-surface); padding: 1rem 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
-        <!-- Kategori Butonları -->
-        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
-            <button onclick="filterListings('all')" class="btn btn-outline btn-sm filter-btn btn-primary" data-category="all">Tümü</button>
-            <button onclick="filterListings('Eğitim')" class="btn btn-outline btn-sm filter-btn" data-category="Eğitim">Eğitim</button>
-            <button onclick="filterListings('Teknoloji')" class="btn btn-outline btn-sm filter-btn" data-category="Teknoloji">Teknoloji</button>
-            <button onclick="filterListings('Erişilebilirlik')" class="btn btn-outline btn-sm filter-btn" data-category="Erişilebilirlik">Erişilebilirlik</button>
-            <button onclick="filterListings('Diğer')" class="btn btn-outline btn-sm filter-btn" data-category="Diğer">Diğer</button>
-        </div>
+    <!-- Ana Filtre Butonları (WCAG Uyumlu, Erişilebilir) -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6 w-full" id="main-filter-buttons">
+        <!-- İlanlarım -->
+        <button onclick="setMainFilter('my-listings')" class="main-filter-btn group flex-1 flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:border-blue-500 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-blue-500/50 active:scale-[0.98] transition-all duration-200" aria-label="İlanlarım, kendi açtığınız veya talep ettiğiniz ilanları listeler" data-filter="my-listings">
+            <svg class="w-12 h-12 mb-3 text-blue-600 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            <span class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">İlanlarım</span>
+        </button>
         
-        <!-- Arama Kutusu -->
-        <div class="listings-search-bar" style="max-width: 320px; background-color: rgba(0, 0, 0, 0.15);">
-            <i class="fa-solid fa-magnifying-glass" style="margin-left: 1rem; color: var(--text-muted);"></i>
-            <input type="text" id="search-input" placeholder="İlanlarda ara..." oninput="filterBySearch()">
+        <!-- Diğer İlanlar -->
+        <button onclick="setMainFilter('other-needs')" class="main-filter-btn group flex-1 flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:border-orange-500 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-orange-500/50 active:scale-[0.98] transition-all duration-200" aria-label="Diğer İlanlar, platformdaki diğer engelli bireylerin açtığı ihtiyaç ilanlarını listeler" data-filter="other-needs">
+            <svg class="w-12 h-12 mb-3 text-orange-500 group-hover:text-orange-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span id="other-needs-text" class="text-xl font-bold text-gray-800 group-hover:text-orange-500 transition-colors">Diğer İlanlar</span>
+        </button>
+        
+        <!-- Paylaşım Merkezi -->
+        <button onclick="setMainFilter('donations')" class="main-filter-btn group flex-1 flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:border-teal-500 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-teal-500/50 active:scale-[0.98] transition-all duration-200" aria-label="Paylaşım Merkezi, bağışçıların eklediği eşya bağış ilanlarını listeler" data-filter="donations">
+            <svg class="w-12 h-12 mb-3 text-teal-500 group-hover:text-teal-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            <span class="text-xl font-bold text-gray-800 group-hover:text-teal-500 transition-colors">Paylaşım Merkezi</span>
+        </button>
+    </div>
+
+    <!-- Arama Çubuğu -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 2.5rem;">
+        <div class="listings-search-bar" style="width: 100%; max-width: 400px; background-color: white; border: 1px solid #e5e7eb; border-radius: 1rem; padding: 0.5rem 1rem; display: flex; align-items: center; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+            <i class="fa-solid fa-magnifying-glass" style="color: #9ca3af; margin-right: 0.75rem;"></i>
+            <input type="text" id="search-input" placeholder="İlanlarda ara..." oninput="filterBySearch()" style="width: 100%; border: none; outline: none; background: transparent; color: #374151;">
         </div>
     </div>
 
@@ -194,23 +211,7 @@
                 <textarea id="need-address" rows="2" placeholder="Mahalle, Sokak, No, Daire..." class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all resize-none text-gray-800" required></textarea>
             </div>
 
-            <!-- Kategori -->
-            <div class="flex flex-col gap-2">
-                <label for="need-category" class="text-sm font-semibold text-gray-700">İhtiyaç Kategorisi</label>
-                <div class="relative">
-                    <select id="need-category" class="w-full px-5 py-3.5 appearance-none bg-gray-50 border border-gray-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-gray-800" required>
-                        <option value="" disabled selected>Kategori Seçiniz</option>
-                        <option value="Medikal Cihaz">Medikal Cihaz</option>
-                        <option value="Eğitim">Eğitim & Kırtasiye</option>
-                        <option value="Teknoloji">Teknoloji</option>
-                        <option value="Erişilebilirlik">Tekerlekli Sandalye / Akülü Araç</option>
-                        <option value="Diğer">Diğer İhtiyaçlar</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-5 pointer-events-none text-gray-400">
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- İhtiyaç Detayı -->
             <div class="flex flex-col gap-2">
@@ -281,17 +282,4 @@
     </div>
 </div>
 
-<!-- Arama Çubuğu için JS Helper fonksiyonu -->
-<script>
-    function filterBySearch() {
-        const query = document.getElementById("search-input").value.toLowerCase();
-        const filtered = allListings.filter(l => 
-            l.title.toLowerCase().includes(query) || 
-            l.description.toLowerCase().includes(query) || 
-            l.category.toLowerCase().includes(query) ||
-            l.creator_name.toLowerCase().includes(query)
-        );
-        displayListings(filtered);
-    }
-</script>
 {% endblock %}
